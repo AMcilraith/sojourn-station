@@ -211,6 +211,14 @@
 	materials = list(MATERIAL_PLASTIC = 10)
 	category = CAT_TOOLS
 
+/datum/design/research/item/hypospray
+	name = "SI Hypospray"
+	desc = "The Soteria Insitute Medical Hypospray is a sterile, air-needle autoinjector for rapid administration of drugs to patients."
+	build_type = PROTOLATHE
+	build_path = /obj/item/reagent_containers/hypospray
+	materials = list(MATERIAL_PLASTIC = 10, MATERIAL_GLASS = 5, MATERIAL_STEEL = 10, MATERIAL SILVER = 1)
+	category = CAT_TOOLS
+
 /datum/design/research/item/mmi
 	name = "Man-machine interface"
 	build_type = PROTOLATHE | MECHFAB

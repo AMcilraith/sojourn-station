@@ -14,7 +14,6 @@
 	possible_transfer_amounts = null
 	reagent_flags = OPENCONTAINER
 	slot_flags = SLOT_BELT
-	preloaded_reagents = list("tricordrazine" = 40)
 	var/injtime = 0 //A simple delay in injecting
 
 
@@ -32,8 +31,55 @@
 	if(!reagents.total_volume)
 		to_chat(user, SPAN_WARNING("[src] is empty."))
 		return
-	if (!istype(M))
-		return
+	if(ismob(target))//Blood!
+				if(reagents.has_reagent("blood"))
+					to_chat(user, SPAN_NOTICE("There is already a blood sample in this syringe."))
+					return
+				if(iscarbon(target))
+					if(isslime(target))
+						to_chat(user, SPAN_WARNING("You are unable to locate any blood."))
+						return
+					var/amount = reagents.get_free_space()
+					var/mob/living/carbon/T = target
+					if(!T.dna)
+						to_chat(user, SPAN_WARNING("You are unable to locate any blood. (To be specific, your target seems to be missing their DNA datum)."))
+						return
+					if(NOCLONE in T.mutations) //target done been et, no more blood in him
+						to_chat(user, SPAN_WARNING("You are unable to locate any blood."))
+						return
+
+					var/datum/reagent/B
+					if(ishuman(T))
+						var/mob/living/carbon/human/H = T
+						if(H.species && H.species.flags & NO_BLOOD)
+							H.reagents.trans_to_obj(src, amount)
+						else
+							B = T.take_blood(src, amount)
+					else
+						B = T.take_blood(src,amount)
+
+					if (B)
+						reagents.reagent_list += B
+						reagents.update_total()
+						on_reagent_change()
+						reagents.handle_reactions()
+					to_chat(user, SPAN_NOTICE("You take a blood sample from [target]."))
+					price_tag = 0
+					for(var/mob/O in viewers(4, user))
+						O.show_message(SPAN_NOTICE("[user] takes a blood sample from [target]."), 1)
+
+			else //if not mob
+				if(!target.reagents.total_volume)
+					to_chat(user, SPAN_NOTICE("[target] is empty."))
+					return
+
+				if(!target.is_drawable())
+					to_chat(user, SPAN_NOTICE("You cannot directly remove reagents from this object."))
+					return
+
+				var/trans = target.reagents.trans_to_obj(src, amount_per_transfer_from_this)
+				to_chat(user, SPAN_NOTICE("You fill the syringe with [trans] units of the solution."))
+				price_tag = 0
 	injtime = 0 //This -could- be abused but only in such narrow circumstances and with such meager payoff that it's fine. it's fine.
 	// Handling errors and injection duration
 	var/mob/living/carbon/human/H = M
@@ -84,7 +130,7 @@
 	var/contained = reagents.log_list()
 	var/trans = reagents.trans_to_mob(M, amount_per_transfer_from_this, CHEM_BLOOD)
 	admin_inject_log(user, M, src, contained, trans)
-	to_chat(user, SPAN_NOTICE("[trans] units injected. [reagents.total_volume] units remaining in \the [src]."))	
+	to_chat(user, SPAN_NOTICE("[trans] units injected. [reagents.total_volume] units remaining in \the [src]."))
 	return
 
 /obj/item/reagent_containers/hypospray/verb/empty()

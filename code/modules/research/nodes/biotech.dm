@@ -239,7 +239,8 @@
 							/datum/design/research/structure/bidontrigger,
 							/datum/design/research/item/medical/compact_defibs,
 							/datum/design/research/item/implant/alarm,
-							/datum/design/research/item/petite_scanner)
+							/datum/design/research/item/petite_scanner,
+							/datum/design/research/item/hypospray)
 
 /datum/technology/tracker_tablet
 	name = "Tracker tablet"
